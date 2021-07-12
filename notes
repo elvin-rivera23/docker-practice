@@ -1,0 +1,463 @@
+-  NEVER BUILD IMAGE ON PRODUCTION SERVER!!!!!!!!!! 
+    
+
+- production is built on a Ubuntu VM
+- env variables are saved onto ubuntu VM
+
+
+''''
+
+- to make changes to prod:
+  - make change to code
+  - git add, commit, push
+  - production server: cd into app directory, git pull
+    - cat index.js
+  
+ - docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+    - changes aren't in effect (docker is dumb, just checks to see if image exists, not updated)
+   - docker-compose up -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+    - builds new container
+    
+ - rebuild specific container and no other containers
+   - docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --no-deps --force-recreate
+    
+    
+
+    ------- GENERAL NOTES FOR TERMINAL -----------
+    
+elvinrivera@Elvins-MacBook-Pro Node-Docker % docker exec -it node-docker_mongo_1 bash
+root@cc8a92e28b28:/# 
+root@cc8a92e28b28:/# 
+root@cc8a92e28b28:/# mongo -u "elvinr" -p "mypassword"
+MongoDB shell version v4.4.6
+connecting to: mongodb://127.0.0.1:27017/?compressors=disabled&gssapiServiceName=mongodb
+Implicit session: session { "id" : UUID("4a70f593-2de1-4449-8722-ccf04c1dbcca") }
+MongoDB server version: 4.4.6
+Welcome to the MongoDB shell.
+For interactive help, type "help".
+For more comprehensive documentation, see
+        https://docs.mongodb.com/
+Questions? Try the MongoDB Developer Community Forums
+        https://community.mongodb.com
+---
+The server generated these startup warnings when booting: 
+        2021-06-29T20:39:45.805+00:00: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine. See http://dochub.mongodb.org/core/prodnotes-filesystem
+---
+---
+        Enable MongoDB's free cloud-based monitoring service, which will then receive and display
+        metrics about your deployment (disk utilization, CPU, operation statistics, etc).
+
+        The monitoring data will be available on a MongoDB website with a unique URL accessible to you
+        and anyone you share the URL with. MongoDB may use this information to make product
+        improvements and to suggest MongoDB products and deployment options to you.
+
+        To enable free monitoring, run the following command: db.enableFreeMonitoring()
+        To permanently disable this reminder, run the following command: db.disableFreeMonitoring()
+---
+> db
+test
+> use mydb
+switched to db mydb
+> show dbs
+admin   0.000GB
+config  0.000GB
+local   0.000GB
+> db.books.insert({"name": "harry potter"})
+WriteResult({ "nInserted" : 1 })
+> db.books.find()
+{ "_id" : ObjectId("60db85ea4a15b8c5caec95b6"), "name" : "harry potter" }
+> show dbs
+admin   0.000GB
+config  0.000GB
+local   0.000GB
+mydb    0.000GB
+
+
+
+Can also use this to get in:
+
+docker exec -it node-docker_mongo_1 mongo -u "elvinr" -p “mypassword"
+
+
+> show dbs
+admin   0.000GB
+config  0.000GB
+local   0.000GB
+mydb    0.000GB
+> use mydb
+switched to db mydb
+> db.books.find()
+{ "_id" : ObjectId("60db89dce9fa9a66deb0f87b"), "name" : "harry potter" }
+>
+
+
+
+
+HOW TO FIND IP OF CONTAINER
+
+elvinrivera@Elvins-MacBook-Pro Node-Docker % docker ps                                                                   
+CONTAINER ID   IMAGE                  COMMAND                  CREATED         STATUS         PORTS                                       NAMES
+07bd909fe360   mongo                  "docker-entrypoint.s…"   4 minutes ago   Up 4 minutes   27017/tcp                                   node-docker_mongo_1
+7f720ebe3df4   node-docker_node-app   "docker-entrypoint.s…"   4 minutes ago   Up 4 minutes   0.0.0.0:3000->3000/tcp, :::3000->3000/tcp   node-docker_node-app_1
+elvinrivera@Elvins-MacBook-Pro Node-Docker %                                       
+elvinrivera@Elvins-MacBook-Pro Node-Docker % 
+elvinrivera@Elvins-MacBook-Pro Node-Docker % docker inspect node-docker_node-app_1 
+[
+    {
+        "Id": "7f720ebe3df464e4e819c93455d1fbf166b24cedc3906291fa4009997b75c76d",
+        "Created": "2021-06-29T21:10:03.212260212Z",
+        "Path": "docker-entrypoint.sh",
+        "Args": [
+            "npm",
+            "run",
+            "dev"
+        ],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 30100,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2021-06-29T21:10:07.038835464Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        "Image": "sha256:524c7edadc5f9f99810f4a83f7a48ab8b9f4d585fa0d75001e432d9fad36ff8b",
+        "ResolvConfPath": "/var/lib/docker/containers/7f720ebe3df464e4e819c93455d1fbf166b24cedc3906291fa4009997b75c76d/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/7f720ebe3df464e4e819c93455d1fbf166b24cedc3906291fa4009997b75c76d/hostname",
+        "HostsPath": "/var/lib/docker/containers/7f720ebe3df464e4e819c93455d1fbf166b24cedc3906291fa4009997b75c76d/hosts",
+        "LogPath": "/var/lib/docker/containers/7f720ebe3df464e4e819c93455d1fbf166b24cedc3906291fa4009997b75c76d/7f720ebe3df464e4e819c93455d1fbf166b24cedc3906291fa4009997b75c76d-json.log",
+        "Name": "/node-docker_node-app_1",
+        "RestartCount": 0,
+        "Driver": "overlay2",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "",
+        "ExecIDs": null,
+        "HostConfig": {
+            "Binds": [
+                "/Users/elvinrivera/Programming/Node-Docker:/app:rw"
+            ],
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "node-docker_default",
+            "PortBindings": {
+                "3000/tcp": [
+                    {
+                        "HostIp": "",
+                        "HostPort": "3000"
+                    }
+                ]
+            },
+            "RestartPolicy": {
+                "Name": "",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": false,
+            "VolumeDriver": "",
+            "VolumesFrom": [],
+            "CapAdd": null,
+            "CapDrop": null,
+            "CgroupnsMode": "host",
+            "Dns": null,
+            "DnsOptions": null,
+            "DnsSearch": null,
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": null,
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 67108864,
+            "Runtime": "runc",
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": null,
+            "BlkioDeviceReadBps": null,
+            "BlkioDeviceWriteBps": null,
+            "BlkioDeviceReadIOps": null,
+            "BlkioDeviceWriteIOps": null,
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": null,
+            "DeviceCgroupRules": null,
+            "DeviceRequests": null,
+            "KernelMemory": 0,
+            "KernelMemoryTCP": 0,
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": false,
+            "PidsLimit": null,
+            "Ulimits": null,
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/asound",
+                "/proc/acpi",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/sys/firmware"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ]
+        },
+        "GraphDriver": {
+            "Data": {
+                "LowerDir": "/var/lib/docker/overlay2/d07e19a9e858ac565656f214a0d553f0b7a63baa48434cd3c1ab53ab39c54ac0-init/diff:/var/lib/docker/overlay2/mm6jfb8jj0gd7plqgfdy46ap5/diff:/var/lib/docker/overlay2/wvcq4jlgbu7ia48l569gk21qm/diff:/var/lib/docker/overlay2/um49zgucji2vdxv6urwz3cxl9/diff:/var/lib/docker/overlay2/67mp50w8mgfoh0umdysdy4o9b/diff:/var/lib/docker/overlay2/oysjaw9uli7kdihidaujm3xmb/diff:/var/lib/docker/overlay2/af6a5a595e570ec7e9e1836a0ac8ad1da3fc9245bea03f33d42d4f23db08caf9/diff:/var/lib/docker/overlay2/f057b8b5818004b1275f28651cb0aef8743d5a3c0a6d69fc9119e8848709dfd5/diff:/var/lib/docker/overlay2/e5e4f965d7249fd8ab49dad3c7e46c60ba0ce2947e21d90d2e137b634124493b/diff:/var/lib/docker/overlay2/2cf76058f7de78d2c6c4bb1cae1b5f8a012e114ff7e36840562e8fca7717dd37/diff:/var/lib/docker/overlay2/f5af308b54e3cf08990d00e021717655e4b7b70627d1b3cbc5cdd7b0a6a63be2/diff:/var/lib/docker/overlay2/abb4657a4e57932961f360f05082b5a18c45036526b8f5b2366fa315a0e97020/diff:/var/lib/docker/overlay2/a144b6a2506059df9e219e9f8bc4abfde36f1511a685d0e30624f169c58d5799/diff:/var/lib/docker/overlay2/bd66d1298ab0f0930e8ac59b10f0f4ebc5e7b8355c360ae50e7647aeb39dad0d/diff:/var/lib/docker/overlay2/01e42494e826e4a72803d45b0771093eae893502aa6bcd0e03f6ded3e0aa8e63/diff",
+                "MergedDir": "/var/lib/docker/overlay2/d07e19a9e858ac565656f214a0d553f0b7a63baa48434cd3c1ab53ab39c54ac0/merged",
+                "UpperDir": "/var/lib/docker/overlay2/d07e19a9e858ac565656f214a0d553f0b7a63baa48434cd3c1ab53ab39c54ac0/diff",
+                "WorkDir": "/var/lib/docker/overlay2/d07e19a9e858ac565656f214a0d553f0b7a63baa48434cd3c1ab53ab39c54ac0/work"
+            },
+            "Name": "overlay2"
+        },
+        "Mounts": [
+            {
+                "Type": "bind",
+                "Source": "/Users/elvinrivera/Programming/Node-Docker",
+                "Destination": "/app",
+                "Mode": "rw",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "volume",
+                "Name": "e089690407536d440b0f17611df1d7473f2217366c436b7ea7fc57f9e2a8ec5c",
+                "Source": "/var/lib/docker/volumes/e089690407536d440b0f17611df1d7473f2217366c436b7ea7fc57f9e2a8ec5c/_data",
+                "Destination": "/app/node_modules",
+                "Driver": "local",
+                "Mode": "",
+                "RW": true,
+                "Propagation": ""
+            }
+        ],
+        "Config": {
+            "Hostname": "7f720ebe3df4",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "ExposedPorts": {
+                "3000/tcp": {}
+            },
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "PORT=3000",
+                "NODE_ENV=development",
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "NODE_VERSION=15.14.0",
+                "YARN_VERSION=1.22.5"
+            ],
+            "Cmd": [
+                "npm",
+                "run",
+                "dev"
+            ],
+            "Image": "node-docker_node-app",
+            "Volumes": {
+                "/app": {},
+                "/app/node_modules": {}
+            },
+            "WorkingDir": "/app",
+            "Entrypoint": [
+                "docker-entrypoint.sh"
+            ],
+            "OnBuild": null,
+            "Labels": {
+                "com.docker.compose.config-hash": "f858ed562a3cde849008ff74ce05f73d6e78c820c663ea0e39aa2b0901a1cd7a",
+                "com.docker.compose.container-number": "1",
+                "com.docker.compose.oneoff": "False",
+                "com.docker.compose.project": "node-docker",
+                "com.docker.compose.project.config_files": "docker-compose.yml,docker-compose.dev.yml",
+                "com.docker.compose.project.working_dir": "/Users/elvinrivera/Programming/Node-Docker",
+                "com.docker.compose.service": "node-app",
+                "com.docker.compose.version": "1.29.2"
+            }
+        },
+        "NetworkSettings": {
+            "Bridge": "",
+            "SandboxID": "6f4de10b1ab96e4b50bc1ff6a251e8e7a568132fb7a7aebbab455c51b3490df2",
+            "HairpinMode": false,
+            "LinkLocalIPv6Address": "",
+            "LinkLocalIPv6PrefixLen": 0,
+            "Ports": {
+                "3000/tcp": [
+                    {
+                        "HostIp": "0.0.0.0",
+                        "HostPort": "3000"
+                    },
+                    {
+                        "HostIp": "::",
+                        "HostPort": "3000"
+                    }
+                ]
+            },
+            "SandboxKey": "/var/run/docker/netns/6f4de10b1ab9",
+            "SecondaryIPAddresses": null,
+            "SecondaryIPv6Addresses": null,
+            "EndpointID": "",
+            "Gateway": "",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "IPAddress": "",
+            "IPPrefixLen": 0,
+            "IPv6Gateway": "",
+            "MacAddress": "",
+            "Networks": {
+                "node-docker_default": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": [
+                        "node-app",
+                        "7f720ebe3df4"
+                    ],
+                    "NetworkID": "7dba50ed750464286adbfe11a63d8cb51a689afb5c139fb471f55651f6cc771a",
+                    "EndpointID": "c7290fbf8f49bb9535e205ab09476fd6da97433236f79dd41d35d72e55602388",
+                    "Gateway": "192.168.48.1",
+                    "IPAddress": "192.168.48.3",
+                    "IPPrefixLen": 20,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "MacAddress": "02:42:c0:a8:30:03",
+                    "DriverOpts": null
+                }
+            }
+        }
+    }
+]
+elvinrivera@Elvins-MacBook-Pro Node-Docker % 
+
+
+
+
+
+CHECK LOGS
+
+docker logs node-docker_node-app_1
+
+
+
+
+CHECK IP WITHOUT USING INSPECT, 
+
+elvinrivera@Elvins-MacBook-Pro Node-Docker % docker ps    
+CONTAINER ID   IMAGE                  COMMAND                  CREATED          STATUS          PORTS                                       NAMES
+07bd909fe360   mongo                  "docker-entrypoint.s…"   41 minutes ago   Up 41 minutes   27017/tcp                                   node-docker_mongo_1
+7f720ebe3df4   node-docker_node-app   "docker-entrypoint.s…"   41 minutes ago   Up 41 minutes   0.0.0.0:3000->3000/tcp, :::3000->3000/tcp   node-docker_node-app_1
+elvinrivera@Elvins-MacBook-Pro Node-Docker % docker exec -it node-docker_node-app_1 bash
+root@7f720ebe3df4:/app# 
+root@7f720ebe3df4:/app# 
+root@7f720ebe3df4:/app# 
+root@7f720ebe3df4:/app# ping mongo
+PING mongo (192.168.48.2) 56(84) bytes of data.
+64 bytes from node-docker_mongo_1.node-docker_default (192.168.48.2): icmp_seq=1 ttl=64 time=0.205 ms
+64 bytes from node-docker_mongo_1.node-docker_default (192.168.48.2): icmp_seq=2 ttl=64 time=0.339 ms
+64 bytes from node-docker_mongo_1.node-docker_default (192.168.48.2): icmp_seq=3 ttl=64 time=0.315 ms
+
+
+^C
+--- mongo ping statistics ---
+11 packets transmitted, 11 received, 0% packet loss, time 10244ms
+rtt min/avg/max/mdev = 0.205/0.300/0.356/0.042 ms
+root@7f720ebe3df4:/app# 
+
+
+
+Install bcrypt library for password encryption
+
+elvinrivera@Elvins-MacBook-Pro Node-Docker % npm install bcryptjs
+npm WARN Node-Docker@1.0.0 No description
+npm WARN Node-Docker@1.0.0 No repository field.
+
++ bcryptjs@2.4.3
+added 1 package from 6 contributors and audited 198 packages in 2.186s
+
+13 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+elvinrivera@Elvins-MacBook-Pro Node-Docker % 
+
+
+
+LOOKING AT REDIS DB
+
+elvinrivera@Elvins-MacBook-Pro Node-Docker % docker ps
+CONTAINER ID   IMAGE                  COMMAND                  CREATED        STATUS        PORTS                                       NAMES
+9de830b360b2   node-docker_node-app   "docker-entrypoint.s…"   20 hours ago   Up 20 hours   0.0.0.0:3000->3000/tcp, :::3000->3000/tcp   node-docker_node-app_1
+3060c288a9fa   redis                  "docker-entrypoint.s…"   21 hours ago   Up 21 hours   6379/tcp                                    node-docker_redis_1
+9826830bce3a   mongo                  "docker-entrypoint.s…"   21 hours ago   Up 21 hours   27017/tcp                                   node-docker_mongo_1
+elvinrivera@Elvins-MacBook-Pro Node-Docker % docker exec -it node-docker_redis_1 bash
+root@3060c288a9fa:/data# redis-cli
+127.0.0.1:6379> 
+127.0.0.1:6379> 
+127.0.0.1:6379> 
+127.0.0.1:6379> exit
+root@3060c288a9fa:/data# exit
+exit
+elvinrivera@Elvins-MacBook-Pro Node-Docker % docker exec -it node-docker_redis_1 redis-cli
+127.0.0.1:6379> 
+127.0.0.1:6379> KEYS *
+(empty array)
+127.0.0.1:6379> KEYS *
+1) "sess:331Gkmzk6GWGXvnQiKUkSsZhjshQiKXl"
+127.0.0.1:6379> KEYS *
+(empty array)
+127.0.0.1:6379> KEYS *
+1) "sess:BlU6WXzGnSV9V1X-BAaq3a_xhpH-oxPv"
+127.0.0.1:6379> GET "sess:BlU6WXzGnSV9V1X-BAaq3a_xhpH-oxPv"
+“{\"cookie\":{\"originalMaxAge\":30000,\"expires\":\"2021-07-09T19:36:49.748Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"}}"
+
+
+
+
+27.0.0.1:6379> GET "sess:BlU6WXzGnSV9V1X-BAaq3a_xhpH-oxPv"
+"{\"cookie\":{\"originalMaxAge\":30000,\"expires\":\"2021-07-09T19:36:49.748Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"}}"
+127.0.0.1:6379> KEYS *
+1) "sess:nL18bEWJ2DEmL80PBhwjJaYsYifryNNF"
+127.0.0.1:6379> GET "sess:nL18bEWJ2DEmL80PBhwjJaYsYifryNNF"
+"{\"cookie\":{\"originalMaxAge\":30000,\"expires\":\"2021-07-09T19:39:19.998Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"user\":{\"_id\":\"60e8a0579df977006253968a\",\"username\":\"elvinr1\",\"password\":\"$2a$12$Jop/wKgNvdgUtKC6/P8Lz.yqqTv0P5PeBy3fP8loPNlOoj8xWV6rC\",\"__v\":0}}"
+127.0.0.1:6379> 
