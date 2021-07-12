@@ -24,3 +24,5 @@ services:
             - MONGO_INITDB_ROOT_USERNAME=elvinr
             - MONGO_INITDB_ROOT_PASSWORD=mypassword
             
+
+# root creds saved in ubuntu machine
