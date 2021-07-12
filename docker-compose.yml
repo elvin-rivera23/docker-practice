@@ -9,6 +9,7 @@ services:
     node-app:
         # use build when you're creating your own custom image (taking base image and copying your code into it)
         build: .
+        image: elvinkr/node-app-practice
         #ports:
         #    - "3000-3001:3000"
         environment: 
