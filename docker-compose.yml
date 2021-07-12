@@ -1,0 +1,48 @@
+version: "3"
+services: 
+    nginx:
+        image: nginx:stable-alpine
+        ports: 
+            - "3000:80"
+        volumes:
+            - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    node-app:
+        # use build when you're creating your own custom image (taking base image and copying your code into it)
+        build: .
+        #ports:
+        #    - "3000-3001:3000"
+        environment: 
+            - PORT=3000
+        depends_on: 
+            - mongo #service name
+
+
+# each container is a service, if you want new container just create a new service
+    mongo:
+        image: mongo
+        environment: 
+            - MONGO_INITDB_ROOT_USERNAME=elvinr
+            - MONGO_INITDB_ROOT_PASSWORD=mypassword
+            # docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d  
+
+
+            # mongo commands
+            # db : shows what db you're connected to
+            # use [db name] : creates a new db
+            # show dbs : list all the databases, doesn't list them until they have data/entries
+        volumes:
+            - mongo-db:/data/db #name:/ gives it a readable name
+
+
+    redis:
+        image: redis
+
+
+volumes:
+    mongo-db:
+    # don't use -v when you tear down containers, it will remove ALL volumes
+    # use docker volume prune : NOTE need to start container so that volume for the containter isn't deleted
+
+
+    #using mongoose library to make it easier to talk to mongodb
+

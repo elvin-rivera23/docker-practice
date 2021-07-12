@@ -1,0 +1,26 @@
+version: "3"
+services: 
+    nginx:
+        ports: 
+            - "3000:80"
+    node-app:
+        build:
+            context: .
+            args: 
+                NODE_ENV: development
+        volumes:
+            #volumes help persist data, very important for db
+            - ./:/app   #bind mount, synchs data in container to folder on local drive. path from local machine to path on container
+            - /app/node_modules #anonynmous volume. path to container directory you're interested in
+        environment: 
+            - NODE_ENV=development
+            - MONGO_USER=elvinr
+            - MONGO_PASSWORD=mypassword
+            - SESSION_SECRET=secret
+
+        command: npm run dev
+    mongo:
+        environment: 
+            - MONGO_INITDB_ROOT_USERNAME=elvinr
+            - MONGO_INITDB_ROOT_PASSWORD=mypassword
+            

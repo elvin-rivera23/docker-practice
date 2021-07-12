@@ -1,0 +1,20 @@
+version: "3"
+services: 
+    node-app:
+        build: .
+        ports: 
+            - "3000:3000"
+        volumes:
+            - ./:/app
+            - /app/node_modules
+        environment: 
+            - PORT=3000
+        #env_file: 
+        #    - ./.env
+
+        # docker-compose up -d  , naming convention is working directory_service name
+        # it will build image and then build the container
+        # to tear down everything: docker-compose down -v  (this will delete the anonymous volumes)
+        # docker-compuse looks for image and caches, but it is dumb, you need to use --build to force it to rebuild the image after making changes
+
+        # e.g. docker-compose -f docker-compose.yml -f docker-compose.prod.yml down -d --build (only for networks you create, not default bridge)
