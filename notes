@@ -20,7 +20,13 @@
     
  - rebuild specific container and no other containers
    - docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --no-deps --force-recreate
+   - tell docker to use this image: 
     
+    
+    
+ -----
+ - pushing an image to docker repository
+ docker image tag node-docker_node-app elvinkr/node-app-practice
     
 
     ------- GENERAL NOTES FOR TERMINAL -----------
